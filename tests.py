@@ -3,6 +3,7 @@ from django.conf import settings; settings.configure()
 
 import djpjax
 from django.template.response import TemplateResponse
+from django.http import HttpResponse
 from django.test.client import RequestFactory
 from django.views.generic import View
 
@@ -89,6 +90,10 @@ def test_pjaxtend_custom_context():
     resp = view_custom_context_pjaxtend(pjax_request)
     assert resp.template_name == "template.html"
     assert resp.context_data['my_parent'] == "parent-pjax.html"
+    
+def test_handle_httpresponse():
+    resp = view_httpresponse(regular_request)
+    assert resp.status_code == 200
 
 # The test "views" themselves.
 
@@ -123,6 +128,10 @@ def view_custom_parent_pjaxtend(request):
 @djpjax.pjaxtend('parent.html', 'parent-pjax.html', 'my_parent')
 def view_custom_context_pjaxtend(request):
     return TemplateResponse(request, "template.html", {})
+
+@djpjax.pjaxtend()
+def view_httpresponse(request):
+    return HttpResponse("This is a test.")
 
 class NoPJAXTemplateVew(djpjax.PJAXResponseMixin, View):
     template_name = 'template.html'
